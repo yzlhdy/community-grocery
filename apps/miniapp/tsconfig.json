@@ -1,0 +1,5 @@
+{
+  "extends": "@community-grocery/tsconfig/vue.json",
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "exclude": ["node_modules", "dist", "unpackage"]
+}

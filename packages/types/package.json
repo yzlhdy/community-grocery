@@ -1,0 +1,17 @@
+{
+  "name": "@community-grocery/types",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --emitDeclarationOnly",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@community-grocery/tsconfig": "workspace:*",
+    "typescript": "^5.8.3"
+  }
+}

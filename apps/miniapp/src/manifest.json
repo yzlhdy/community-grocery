@@ -1,0 +1,14 @@
+{
+  "name": "社区买菜",
+  "appid": "",
+  "description": "社区买菜微信小程序",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": true
+    },
+    "usingComponents": true
+  }
+}

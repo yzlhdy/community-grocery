@@ -1,0 +1,28 @@
+{
+  "name": "@community-grocery/api",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@community-grocery/constants": "workspace:*",
+    "@community-grocery/schemas": "workspace:*",
+    "@community-grocery/types": "workspace:*",
+    "@community-grocery/utils": "workspace:*",
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@community-grocery/tsconfig": "workspace:*",
+    "@nestjs/cli": "^11.0.7",
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3"
+  }
+}

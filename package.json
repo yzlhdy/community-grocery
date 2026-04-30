@@ -1,0 +1,20 @@
+{
+  "name": "community-grocery",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@community-grocery/eslint-config": "workspace:*",
+    "@community-grocery/tsconfig": "workspace:*",
+    "eslint": "^9.25.1",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3"
+  }
+}
