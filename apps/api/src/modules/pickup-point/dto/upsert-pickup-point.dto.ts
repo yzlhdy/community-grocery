@@ -2,53 +2,53 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsBoolean, IsOptional, IsString, MinLength } from "class-validator";
 
 /**
- * Payload for creating or updating one pickup point.
+ * 创建或更新自提点的参数。
  */
 export class UpsertPickupPointDto {
-  /** Existing pickup point id. Omit to create a new pickup point. */
-  @ApiPropertyOptional()
+  /** 已存在的自提点 ID，不传则创建新自提点。 */
+  @ApiPropertyOptional({ description: "已存在的自提点 ID，不传则创建新自提点" })
   @IsOptional()
   @IsString()
   id?: string;
 
-  /** Parent community id. */
-  @ApiProperty()
+  /** 所属小区 ID。 */
+  @ApiProperty({ description: "所属小区 ID" })
   @IsString()
   @MinLength(1)
   communityId!: string;
 
-  /** Pickup point name. */
-  @ApiProperty({ example: "北门自提点" })
+  /** 自提点名称。 */
+  @ApiProperty({ description: "自提点名称", example: "北门自提点" })
   @IsString()
   @MinLength(1)
   name!: string;
 
-  /** Pickup address. */
-  @ApiProperty({ example: "幸福里北门便利店" })
+  /** 自提地址。 */
+  @ApiProperty({ description: "自提地址", example: "幸福里北门便利店" })
   @IsString()
   @MinLength(1)
   address!: string;
 
-  /** Contact person name. */
-  @ApiProperty({ example: "王师傅" })
+  /** 联系人姓名。 */
+  @ApiProperty({ description: "联系人姓名", example: "王师傅" })
   @IsString()
   @MinLength(1)
   contactName!: string;
 
-  /** Contact phone number. */
-  @ApiProperty({ example: "13800000000" })
+  /** 联系电话。 */
+  @ApiProperty({ description: "联系电话", example: "13800000000" })
   @IsString()
   @MinLength(1)
   contactPhone!: string;
 
-  /** Human-readable pickup time range. */
-  @ApiProperty({ example: "今日 16:00-20:00" })
+  /** 面向用户展示的自提时间段。 */
+  @ApiProperty({ description: "面向用户展示的自提时间段", example: "今日 16:00-20:00" })
   @IsString()
   @MinLength(1)
   pickupTimeRange!: string;
 
-  /** Whether this pickup point is enabled. */
-  @ApiPropertyOptional({ default: true })
+  /** 自提点是否启用。 */
+  @ApiPropertyOptional({ description: "自提点是否启用", default: true })
   @IsOptional()
   @IsBoolean()
   enabled?: boolean;

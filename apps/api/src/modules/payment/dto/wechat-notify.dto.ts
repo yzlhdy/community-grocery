@@ -2,29 +2,29 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsIn, IsOptional, IsString, MinLength } from "class-validator";
 
 /**
- * Simplified WeChat payment notification payload used by the first phase.
+ * 第一阶段使用的简化微信支付回调参数。
  */
 export class WechatNotifyDto {
-  /** Internal payment number. */
-  @ApiProperty()
+  /** 内部支付单号。 */
+  @ApiProperty({ description: "内部支付单号" })
   @IsString()
   @MinLength(1)
   paymentNo!: string;
 
-  /** Upstream WeChat transaction identifier. */
-  @ApiPropertyOptional()
+  /** 微信侧交易单号。 */
+  @ApiPropertyOptional({ description: "微信侧交易单号" })
   @IsOptional()
   @IsString()
   transactionId?: string;
 
-  /** Payment result status. */
-  @ApiPropertyOptional({ enum: ["SUCCESS", "FAILED"] })
+  /** 支付结果状态。 */
+  @ApiPropertyOptional({ description: "支付结果状态", enum: ["SUCCESS", "FAILED"] })
   @IsOptional()
   @IsIn(["SUCCESS", "FAILED"])
   status?: "SUCCESS" | "FAILED";
 
-  /** Raw callback payload for audit storage. */
-  @ApiPropertyOptional()
+  /** 用于审计留存的原始回调内容。 */
+  @ApiPropertyOptional({ description: "用于审计留存的原始回调内容" })
   @IsOptional()
   rawPayload?: unknown;
 }

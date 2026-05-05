@@ -4,11 +4,11 @@ import { PrismaClient } from "../../generated/prisma/client";
 
 @Injectable()
 /**
- * Application-wide Prisma client provider.
+ * 应用级 Prisma 客户端提供者。
  */
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   /**
-   * Creates Prisma Client with the PostgreSQL driver adapter required by Prisma 7.
+   * 使用 Prisma 7 所需的 PostgreSQL 驱动适配器创建 Prisma Client。
    */
   constructor() {
     const adapter = new PrismaPg({
@@ -18,14 +18,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   /**
-   * Opens the database connection when Nest initializes the module.
+   * Nest 初始化模块时打开数据库连接。
    */
   async onModuleInit() {
     await this.$connect();
   }
 
   /**
-   * Closes the database connection when Nest shuts down.
+   * Nest 关闭时断开数据库连接。
    */
   async onModuleDestroy() {
     await this.$disconnect();

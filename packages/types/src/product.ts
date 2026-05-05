@@ -19,6 +19,7 @@ export interface Product {
   description?: string;
   skus: Sku[];
   sales: number;
+  badge?: string | null;
   enabled: boolean;
 }
 

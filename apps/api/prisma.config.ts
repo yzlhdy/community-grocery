@@ -2,11 +2,11 @@ import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
 /**
- * Central Prisma CLI configuration.
+ * Prisma CLI 统一配置。
  *
- * Prisma 7 no longer accepts connection URLs inside `schema.prisma`.
- * Keeping the URL here makes migrate/generate/studio read the same
- * `DATABASE_URL` while the schema only describes database shape.
+ * Prisma 7 不再允许在 `schema.prisma` 中配置连接地址。
+ * 这里统一读取 `DATABASE_URL`，让 migrate/generate/studio 使用同一套连接配置，
+ * `schema.prisma` 只负责描述数据库结构。
  */
 export default defineConfig({
   schema: "prisma/schema.prisma",

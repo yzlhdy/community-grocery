@@ -6,6 +6,6 @@ import { InventoryService } from "./inventory.service";
   exports: [InventoryService],
 })
 /**
- * Inventory domain module for SKU stock locking and settlement.
+ * 库存领域模块，负责 SKU 库存锁定和结算。
  */
 export class InventoryModule {}

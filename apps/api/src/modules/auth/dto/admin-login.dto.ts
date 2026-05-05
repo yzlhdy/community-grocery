@@ -2,17 +2,17 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsString, MinLength } from "class-validator";
 
 /**
- * Payload for operator/admin password login.
+ * 后台账号密码登录参数。
  */
 export class AdminLoginDto {
-  /** Admin username. */
-  @ApiProperty({ example: "admin" })
+  /** 后台用户名。 */
+  @ApiProperty({ description: "后台用户名", example: "admin" })
   @IsString()
   @MinLength(1)
   username!: string;
 
-  /** Admin password. */
-  @ApiProperty({ example: "admin123456" })
+  /** 后台密码。 */
+  @ApiProperty({ description: "后台密码", example: "admin123456" })
   @IsString()
   @MinLength(1)
   password!: string;

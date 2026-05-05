@@ -6,15 +6,15 @@ import type {
 } from "./wechat-payment.types";
 
 /**
- * Local-development WeChat payment provider.
+ * 本地开发使用的微信支付提供者。
  *
- * Real WeChat Pay signing and certificate handling should replace this provider
- * without changing payment application-service code.
+ * 后续接入真实微信支付签名和证书时，只需要替换该提供者，
+ * 不需要改动支付应用服务代码。
  */
 @Injectable()
 export class MockWechatPaymentProvider implements WechatPaymentProvider {
   /**
-   * Creates deterministic mock Mini Program payment parameters.
+   * 创建可预测的模拟小程序支付参数。
    */
   async createMiniProgramPayment(input: {
     paymentNo: string;

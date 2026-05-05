@@ -1,29 +1,32 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { JwtRoleGuard } from "../../common/guards/jwt-role.guard";
+import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductQueryDto } from "./dto/product-query.dto";
-import { UpsertProductDto } from "./dto/upsert-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
 import { ProductService } from "./product.service";
 
-@ApiTags("products")
+@ApiTags("商品")
 @Controller("products")
 /**
- * Product endpoints for browsing and admin management.
+ * 商品浏览和后台管理接口。
  */
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
+  @ApiOperation({ summary: "分页查询商品列表" })
   /**
-   * Lists products by optional category and keyword filters.
+   * 按分类、关键词和上下架状态查询商品。
    */
   findMany(@Query() query: ProductQueryDto) {
     return this.productService.findMany(query);
   }
 
   @Get(":id")
+  @ApiOperation({ summary: "查询商品详情" })
   /**
-   * Reads a single product detail.
+   * 查询单个商品详情。
    */
   findOne(@Param("id") id: string) {
     return this.productService.findOne(id);
@@ -31,11 +34,34 @@ export class ProductController {
 
   @Post()
   @ApiBearerAuth()
+  @ApiOperation({ summary: "创建商品" })
   @UseGuards(JwtRoleGuard("admin"))
   /**
-   * Creates or updates a product. Requires admin authentication.
+   * 创建商品及 SKU，需要后台管理员登录。
    */
-  upsert(@Body() dto: UpsertProductDto) {
-    return this.productService.upsert(dto);
+  create(@Body() dto: CreateProductDto) {
+    return this.productService.create(dto);
+  }
+
+  @Patch(":id")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "更新商品" })
+  @UseGuards(JwtRoleGuard("admin"))
+  /**
+   * 更新商品及 SKU，需要后台管理员登录。
+   */
+  update(@Param("id") id: string, @Body() dto: UpdateProductDto) {
+    return this.productService.update(id, dto);
+  }
+
+  @Delete(":id")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "删除商品" })
+  @UseGuards(JwtRoleGuard("admin"))
+  /**
+   * 删除商品，需要后台管理员登录。
+   */
+  delete(@Param("id") id: string) {
+    return this.productService.delete(id);
   }
 }

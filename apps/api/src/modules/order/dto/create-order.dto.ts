@@ -1,45 +1,51 @@
 import { Type } from "class-transformer";
-import { ApiProperty } from "@nestjs/swagger";
-import { ArrayMinSize, IsArray, IsInt, IsString, Min, MinLength, ValidateNested } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ArrayMinSize, IsArray, IsInt, IsOptional, IsString, Min, MinLength, ValidateNested } from "class-validator";
 
 /**
- * One SKU line requested when creating an order.
+ * 创建订单时提交的一条 SKU 明细。
  */
 export class CreateOrderItemDto {
-  /** SKU identifier. */
-  @ApiProperty()
+  /** SKU 标识。 */
+  @ApiProperty({ description: "SKU 标识" })
   @IsString()
   @MinLength(1)
   skuId!: string;
 
-  /** Purchase quantity. */
-  @ApiProperty({ minimum: 1, example: 1 })
+  /** 购买数量。 */
+  @ApiProperty({ description: "购买数量", minimum: 1, example: 1 })
   @IsInt()
   @Min(1)
   quantity!: number;
 }
 
 /**
- * Payload for creating an unpaid self-pickup order.
+ * 创建未支付自提订单的参数。
  */
 export class CreateOrderDto {
-  /** Community where the order will be fulfilled. */
-  @ApiProperty()
+  /** 订单履约小区。 */
+  @ApiProperty({ description: "订单履约小区 ID" })
   @IsString()
   @MinLength(1)
   communityId!: string;
 
-  /** Pickup point under the selected community. */
-  @ApiProperty()
+  /** 所选小区下的自提点。 */
+  @ApiProperty({ description: "所选小区下的自提点 ID" })
   @IsString()
   @MinLength(1)
   pickupPointId!: string;
 
-  /** SKU lines included in this order. */
-  @ApiProperty({ type: [CreateOrderItemDto] })
+  /** 订单包含的 SKU 明细。 */
+  @ApiProperty({ description: "订单包含的 SKU 明细", type: [CreateOrderItemDto] })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items!: CreateOrderItemDto[];
+
+  /** 使用的用户优惠券 ID。 */
+  @ApiPropertyOptional({ description: "使用的用户优惠券 ID" })
+  @IsOptional()
+  @IsString()
+  couponId?: string;
 }

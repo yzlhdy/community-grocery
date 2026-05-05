@@ -36,8 +36,55 @@ enum PaymentStatus {
 
 enum AssetStorage {
   LOCAL
+  MINIO
   COS
   OSS
+}
+
+enum BannerScene {
+  HOME_TOP
+  HOME_PROMOTION
+}
+
+enum PromotionType {
+  SECKILL
+  RECOMMEND
+}
+
+enum CouponType {
+  FULL_REDUCTION
+}
+
+enum CustomerCouponStatus {
+  AVAILABLE
+  USED
+  EXPIRED
+}
+
+enum AfterSaleType {
+  REFUND_ONLY
+  RETURN_REFUND
+}
+
+enum AfterSaleStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+  CANCELLED
+}
+
+enum NotificationType {
+  ORDER
+  PAYMENT
+  AFTER_SALE
+  SYSTEM
+}
+
+enum PointsChangeType {
+  ORDER_REWARD
+  REFUND_DEDUCT
+  MANUAL_ADJUST
 }
 
 model AdminUser {
@@ -58,9 +105,19 @@ model Customer {
   nickname    String?
   avatarUrl   String?
   phone       String?
+  points      Int            @default(0)
+  walletBalance Decimal      @default(0) @db.Decimal(10, 2)
   status      CustomerStatus @default(ENABLED)
   cartItems   CartItem[]
   orders      Order[]
+  coupons     CustomerCoupon[]
+  addresses   CustomerAddress[]
+  favorites   FavoriteProduct[]
+  browsingHistories BrowsingHistory[]
+  afterSales  AfterSale[]
+  reviews     ProductReview[]
+  notifications Notification[]
+  pointsLedgers PointsLedger[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 }
@@ -84,6 +141,10 @@ model PickupPoint {
   contactName     String
   contactPhone    String
   pickupTimeRange String
+  leaderName      String?
+  leaderAvatarUrl String?
+  servicePhone    String?
+  serviceTimeRange String?
   enabled         Boolean   @default(true)
   community       Community @relation(fields: [communityId], references: [id])
   orders          Order[]
@@ -119,10 +180,15 @@ model Product {
   imageUrl    String
   description String?
   sales       Int       @default(0)
+  badge       String?
   enabled     Boolean   @default(true)
   sort        Int       @default(0)
   category    Category  @relation(fields: [categoryId], references: [id])
   skus        Sku[]
+  promotionProducts PromotionProduct[]
+  favorites   FavoriteProduct[]
+  browsingHistories BrowsingHistory[]
+  reviews     ProductReview[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -143,6 +209,7 @@ model Sku {
   product     Product     @relation(fields: [productId], references: [id])
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  promotionProducts PromotionProduct[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -154,6 +221,7 @@ model CartItem {
   customerId String
   skuId      String
   quantity   Int
+  selected   Boolean  @default(true)
   customer   Customer @relation(fields: [customerId], references: [id])
   sku        Sku      @relation(fields: [skuId], references: [id])
   createdAt  DateTime @default(now())
@@ -182,6 +250,9 @@ model Order {
   pickupPoint    PickupPoint  @relation(fields: [pickupPointId], references: [id])
   items          OrderItem[]
   payments       Payment[]
+  afterSales     AfterSale[]
+  reviews        ProductReview[]
+  customerCoupons CustomerCoupon[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -202,6 +273,8 @@ model OrderItem {
   quantity    Int
   order       Order    @relation(fields: [orderId], references: [id])
   sku         Sku      @relation(fields: [skuId], references: [id])
+  afterSaleItems AfterSaleItem[]
+  review      ProductReview?
 
   @@index([orderId])
   @@index([skuId])
@@ -235,4 +308,220 @@ model UploadAsset {
   url          String
   path         String
   createdAt    DateTime     @default(now())
+}
+
+model HomeBanner {
+  id        String      @id @default(cuid())
+  scene     BannerScene @default(HOME_TOP)
+  title     String
+  subtitle  String?
+  imageUrl  String
+  linkType  String?
+  linkValue String?
+  sort      Int         @default(0)
+  enabled   Boolean     @default(true)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([scene, enabled, sort])
+}
+
+model PromotionCampaign {
+  id        String             @id @default(cuid())
+  type      PromotionType
+  title     String
+  subtitle  String?
+  badge     String?
+  startsAt  DateTime?
+  endsAt    DateTime?
+  enabled   Boolean            @default(true)
+  sort      Int                @default(0)
+  products  PromotionProduct[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([type, enabled, sort])
+}
+
+model PromotionProduct {
+  id          String            @id @default(cuid())
+  campaignId  String
+  productId   String
+  skuId       String?
+  promoPrice  Decimal?          @db.Decimal(10, 2)
+  discountLabel String?
+  sort        Int               @default(0)
+  campaign    PromotionCampaign @relation(fields: [campaignId], references: [id])
+  product     Product           @relation(fields: [productId], references: [id])
+  sku         Sku?              @relation(fields: [skuId], references: [id])
+
+  @@unique([campaignId, productId, skuId])
+  @@index([campaignId, sort])
+}
+
+model CouponTemplate {
+  id             String           @id @default(cuid())
+  type           CouponType        @default(FULL_REDUCTION)
+  title          String
+  description    String?
+  thresholdAmount Decimal          @default(0) @db.Decimal(10, 2)
+  discountAmount Decimal          @db.Decimal(10, 2)
+  totalStock     Int?
+  receivedCount  Int              @default(0)
+  usedCount      Int              @default(0)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  enabled        Boolean          @default(true)
+  customerCoupons CustomerCoupon[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([enabled, startsAt, endsAt])
+}
+
+model CustomerCoupon {
+  id         String               @id @default(cuid())
+  customerId String
+  templateId String
+  status     CustomerCouponStatus @default(AVAILABLE)
+  receivedAt DateTime             @default(now())
+  usedAt     DateTime?
+  orderId    String?
+  customer   Customer             @relation(fields: [customerId], references: [id])
+  template   CouponTemplate       @relation(fields: [templateId], references: [id])
+  order      Order?               @relation(fields: [orderId], references: [id])
+
+  @@index([customerId, status])
+  @@index([templateId])
+  @@index([orderId])
+}
+
+model CustomerAddress {
+  id            String   @id @default(cuid())
+  customerId    String
+  contactName   String
+  contactPhone  String
+  province      String?
+  city          String?
+  district      String?
+  detailAddress String
+  isDefault     Boolean  @default(false)
+  customer      Customer @relation(fields: [customerId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([customerId, isDefault])
+}
+
+model FavoriteProduct {
+  id         String   @id @default(cuid())
+  customerId String
+  productId  String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, productId])
+  @@index([customerId])
+}
+
+model BrowsingHistory {
+  id         String   @id @default(cuid())
+  customerId String
+  productId  String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@index([customerId, createdAt])
+}
+
+model AfterSale {
+  id            String          @id @default(cuid())
+  afterSaleNo   String          @unique
+  customerId    String
+  orderId       String
+  type          AfterSaleType
+  status        AfterSaleStatus @default(PENDING)
+  reason        String
+  description   String?
+  refundAmount  Decimal         @db.Decimal(10, 2)
+  rejectReason  String?
+  reviewedAt    DateTime?
+  refundedAt    DateTime?
+  cancelledAt   DateTime?
+  customer      Customer        @relation(fields: [customerId], references: [id])
+  order         Order           @relation(fields: [orderId], references: [id])
+  items         AfterSaleItem[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([customerId, status])
+  @@index([orderId])
+}
+
+model AfterSaleItem {
+  id            String    @id @default(cuid())
+  afterSaleId   String
+  orderItemId   String
+  quantity      Int
+  refundAmount  Decimal   @db.Decimal(10, 2)
+  afterSale     AfterSale @relation(fields: [afterSaleId], references: [id])
+  orderItem     OrderItem @relation(fields: [orderItemId], references: [id])
+
+  @@index([afterSaleId])
+  @@index([orderItemId])
+}
+
+model ProductReview {
+  id          String    @id @default(cuid())
+  customerId  String
+  orderId     String
+  orderItemId String    @unique
+  productId   String
+  skuId       String
+  rating      Int
+  content     String?
+  imageUrls   String[]
+  anonymous   Boolean   @default(false)
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  order       Order     @relation(fields: [orderId], references: [id])
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([customerId])
+  @@index([productId, createdAt])
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  customerId String
+  type       NotificationType
+  title      String
+  content    String
+  payload    Json?
+  readAt     DateTime?
+  customer   Customer         @relation(fields: [customerId], references: [id])
+  createdAt  DateTime         @default(now())
+
+  @@index([customerId, readAt])
+  @@index([customerId, createdAt])
+}
+
+model PointsLedger {
+  id          String           @id @default(cuid())
+  customerId  String
+  type        PointsChangeType
+  points      Int
+  balance     Int
+  description String
+  orderId     String?
+  customer    Customer         @relation(fields: [customerId], references: [id])
+  createdAt   DateTime         @default(now())
+
+  @@index([customerId, createdAt])
 }

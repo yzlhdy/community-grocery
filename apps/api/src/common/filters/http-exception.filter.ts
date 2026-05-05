@@ -11,11 +11,11 @@ import type { ApiErrorResponse } from "../interfaces/api-error.interface";
 
 @Catch()
 /**
- * Converts thrown exceptions into the standard API error envelope.
+ * 将抛出的异常转换为统一 API 错误响应。
  */
 export class HttpExceptionFilter implements ExceptionFilter {
   /**
-   * Handles both Nest HTTP exceptions and unknown runtime errors.
+   * 同时处理 Nest HTTP 异常和未知运行时异常。
    */
   catch(exception: unknown, host: ArgumentsHost) {
     const context = host.switchToHttp();
@@ -32,7 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? (objectPayload as { message: string | string[] }).message
         : exception instanceof Error
           ? exception.message
-          : "Internal server error";
+          : "服务器内部错误";
     const code =
       objectPayload && "code" in objectPayload
         ? String((objectPayload as { code: string }).code)
@@ -56,7 +56,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   /**
-   * Maps common HTTP statuses to stable API error codes.
+   * 将常见 HTTP 状态码映射为稳定 API 错误码。
    */
   private resolveDefaultCode(status: number) {
     if (status === HttpStatus.UNAUTHORIZED) return ErrorCode.UNAUTHORIZED;

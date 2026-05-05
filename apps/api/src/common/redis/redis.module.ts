@@ -7,6 +7,6 @@ import { RedisService } from "./redis.service";
   exports: [RedisService],
 })
 /**
- * Global Redis module so feature modules can inject `RedisService`.
+ * 全局 Redis 模块，业务模块可直接注入 `RedisService`。
  */
 export class RedisModule {}

@@ -13,5 +13,9 @@ export interface PickupPoint {
   contactName: string;
   contactPhone: string;
   pickupTimeRange: string;
+  leaderName?: string | null;
+  leaderAvatarUrl?: string | null;
+  servicePhone?: string | null;
+  serviceTimeRange?: string | null;
   enabled: boolean;
 }

@@ -7,6 +7,6 @@ import { PrismaService } from "./prisma.service";
   exports: [PrismaService],
 })
 /**
- * Global Prisma module so feature modules can inject `PrismaService`.
+ * 全局 Prisma 模块，业务模块可直接注入 `PrismaService`。
  */
 export class PrismaModule {}

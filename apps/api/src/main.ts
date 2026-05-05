@@ -7,7 +7,7 @@ import { ApiResponseInterceptor } from "./common/interceptors/api-response.inter
 import { AppModule } from "./modules/app.module";
 
 /**
- * Bootstraps the NestJS HTTP application.
+ * 启动 NestJS HTTP 应用。
  */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,7 +22,7 @@ async function bootstrap() {
       exceptionFactory: (errors) =>
         new BadRequestException({
           code: ErrorCode.VALIDATION_FAILED,
-          message: "Validation failed",
+          message: "参数校验失败",
           details: errors.map((error) => ({
             property: error.property,
             constraints: error.constraints,

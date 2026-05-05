@@ -1,25 +1,25 @@
 /**
- * Stable business error codes returned by the API.
+ * API 返回的稳定业务错误码。
  */
 export enum ErrorCode {
-  /** Unknown server-side failure. */
+  /** 未知服务端异常。 */
   INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
-  /** Request payload or query parameters are invalid. */
+  /** 请求体或查询参数不合法。 */
   VALIDATION_FAILED = "VALIDATION_FAILED",
-  /** Authentication token is missing or invalid. */
+  /** 认证令牌缺失或无效。 */
   UNAUTHORIZED = "UNAUTHORIZED",
-  /** Current user is not allowed to access the resource. */
+  /** 当前用户无权访问资源。 */
   FORBIDDEN = "FORBIDDEN",
-  /** Requested resource does not exist. */
+  /** 请求资源不存在。 */
   NOT_FOUND = "NOT_FOUND",
-  /** Generic business rule violation. */
+  /** 通用业务规则错误。 */
   BUSINESS_ERROR = "BUSINESS_ERROR",
-  /** SKU stock cannot satisfy the requested quantity. */
+  /** SKU 库存不足。 */
   INSUFFICIENT_STOCK = "INSUFFICIENT_STOCK",
-  /** Order state does not allow the requested transition. */
+  /** 订单状态不允许当前操作。 */
   INVALID_ORDER_STATUS = "INVALID_ORDER_STATUS",
-  /** Pickup point is disabled or not part of the selected community. */
+  /** 自提点已停用或不属于所选小区。 */
   INVALID_PICKUP_POINT = "INVALID_PICKUP_POINT",
-  /** Payment callback has already been processed. */
+  /** 支付回调已处理。 */
   PAYMENT_DUPLICATED = "PAYMENT_DUPLICATED",
 }

@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const pageQuerySchema = z.object({
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().max(100).optional(),
+});
+
 export const productSchema = z.object({
   id: z.string(),
   categoryId: z.string(),
@@ -26,6 +31,7 @@ export const productSchema = z.object({
 export const createOrderSchema = z.object({
   communityId: z.string(),
   pickupPointId: z.string(),
+  couponId: z.string().optional(),
   items: z
     .array(
       z.object({
@@ -85,4 +91,51 @@ export const upsertPickupPointSchema = z.object({
   contactPhone: z.string().min(1),
   pickupTimeRange: z.string().min(1),
   enabled: z.boolean().optional(),
+});
+
+export const upsertAddressSchema = z.object({
+  id: z.string().optional(),
+  contactName: z.string().min(1),
+  contactPhone: z.string().min(1),
+  province: z.string().optional(),
+  city: z.string().optional(),
+  district: z.string().optional(),
+  detailAddress: z.string().min(1),
+  isDefault: z.boolean().optional(),
+});
+
+export const updateCartItemSelectedSchema = z.object({
+  selected: z.boolean(),
+});
+
+export const homeQuerySchema = z.object({
+  communityId: z.string().optional(),
+});
+
+export const createAfterSaleSchema = z.object({
+  orderId: z.string().min(1),
+  type: z.enum(["REFUND_ONLY", "RETURN_REFUND"]),
+  reason: z.string().min(1),
+  description: z.string().optional(),
+  items: z
+    .array(
+      z.object({
+        orderItemId: z.string().min(1),
+        quantity: z.number().int().positive(),
+      }),
+    )
+    .min(1),
+});
+
+export const reviewAfterSaleSchema = z.object({
+  approved: z.boolean(),
+  rejectReason: z.string().optional(),
+});
+
+export const createReviewSchema = z.object({
+  orderItemId: z.string().min(1),
+  rating: z.number().int().min(1).max(5),
+  content: z.string().optional(),
+  imageUrls: z.array(z.string()).max(9).optional(),
+  anonymous: z.boolean().optional(),
 });

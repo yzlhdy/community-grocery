@@ -1,12 +1,13 @@
 import { Module } from "@nestjs/common";
 import { CommunityController } from "./community.controller";
+import { CommunityRepository } from "./community.repository";
 import { CommunityService } from "./community.service";
 
 @Module({
   controllers: [CommunityController],
-  providers: [CommunityService],
+  providers: [CommunityService, CommunityRepository],
 })
 /**
- * Community module.
+ * 小区模块。
  */
 export class CommunityModule {}

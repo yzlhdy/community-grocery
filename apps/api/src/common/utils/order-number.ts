@@ -1,5 +1,5 @@
 /**
- * Creates a readable unique order number.
+ * 创建可读的唯一订单号。
  */
 export function createOrderNo() {
   const timestamp = new Date()
@@ -11,15 +11,22 @@ export function createOrderNo() {
 }
 
 /**
- * Creates a payment number derived from the same timestamp strategy as orders.
+ * 使用与订单号一致的时间戳策略创建支付单号。
  */
 export function createPaymentNo() {
   return `PAY${createOrderNo().slice(2)}`;
 }
 
 /**
- * Creates a short pickup code for offline self-pickup verification.
+ * 创建用于线下自提核销的短自提码。
  */
 export function createPickupCode() {
   return Math.random().toString().slice(2, 6).padEnd(4, "0");
+}
+
+/**
+ * 创建售后单号。
+ */
+export function createAfterSaleNo() {
+  return `AS${createOrderNo().slice(2)}`;
 }

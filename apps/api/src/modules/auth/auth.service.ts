@@ -15,7 +15,7 @@ interface WechatSession {
 
 @Injectable()
 /**
- * Handles admin password authentication and WeChat customer authentication.
+ * 处理后台密码登录和微信小程序用户登录。
  */
 export class AuthService {
   constructor(
@@ -26,7 +26,7 @@ export class AuthService {
   ) {}
 
   /**
-   * Authenticates a backend user and returns a JWT for admin APIs.
+   * 校验后台用户密码，并返回管理端接口使用的 JWT。
    */
   async loginAdmin(dto: AdminLoginDto) {
     const admin = await this.prisma.adminUser.findUnique({
@@ -34,12 +34,12 @@ export class AuthService {
     });
 
     if (!admin || !admin.enabled) {
-      throw new UnauthorizedException("Invalid username or password");
+      throw new UnauthorizedException("用户名或密码错误");
     }
 
     const matched = await this.passwordService.verifyPassword(admin.passwordHash, dto.password);
     if (!matched) {
-      throw new UnauthorizedException("Invalid username or password");
+      throw new UnauthorizedException("用户名或密码错误");
     }
 
     return {
@@ -58,12 +58,12 @@ export class AuthService {
   }
 
   /**
-   * Authenticates or creates a customer from a WeChat Mini Program login code.
+   * 根据微信小程序登录 code 认证或创建用户。
    */
   async loginWechat(dto: WechatLoginDto) {
     const session = await this.getWechatSession(dto.code);
     if (session.errcode || !session.openid) {
-      throw new UnauthorizedException(session.errmsg ?? "Wechat login failed");
+      throw new UnauthorizedException(session.errmsg ?? "微信登录失败");
     }
 
     const customer = await this.prisma.customer.upsert({
@@ -92,8 +92,7 @@ export class AuthService {
   }
 
   /**
-   * Exchanges a WeChat login code for a session; falls back to dev mode if
-   * WeChat credentials are not configured locally.
+   * 使用微信登录 code 换取 session；本地未配置微信凭证时进入开发模式。
    */
   private async getWechatSession(code: string): Promise<WechatSession> {
     const appId = this.configService.get<string>("WECHAT_APP_ID");

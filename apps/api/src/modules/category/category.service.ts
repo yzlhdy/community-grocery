@@ -1,21 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../common/prisma/prisma.service";
-import { UpsertCategoryDto } from "./dto/upsert-category.dto";
+import { createPageResult } from "../../common/utils/pagination";
+import { CategoryRepository } from "./category.repository";
+import { CategoryQueryDto } from "./dto/category-query.dto";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { UpdateCategoryDto } from "./dto/update-category.dto";
 
 @Injectable()
 /**
- * Provides category tree query and admin upsert operations.
+ * 提供分类树查询和后台分类写入能力。
  */
 export class CategoryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
   /**
-   * Returns enabled and disabled categories in a two-level tree structure.
+   * 以树形结构返回分类列表。
    */
   async findTree() {
-    const categories = await this.prisma.category.findMany({
-      orderBy: [{ level: "asc" }, { sort: "asc" }],
-    });
+    const categories = await this.categoryRepository.findTreeList();
 
     return categories
       .filter((category) => !category.parentId)
@@ -26,25 +27,31 @@ export class CategoryService {
   }
 
   /**
-   * Creates or updates a category record.
+   * 分页查询分类。
    */
-  upsert(dto: UpsertCategoryDto) {
-    const data = {
-      name: dto.name,
-      parentId: dto.parentId ?? null,
-      level: dto.level,
-      iconUrl: dto.iconUrl,
-      sort: dto.sort ?? 0,
-      enabled: dto.enabled ?? true,
-    };
+  async findPage(query: CategoryQueryDto) {
+    const page = await this.categoryRepository.findPage(query);
+    return createPageResult(page);
+  }
 
-    if (dto.id) {
-      return this.prisma.category.update({
-        where: { id: dto.id },
-        data,
-      });
-    }
+  /**
+   * 创建分类记录。
+   */
+  create(dto: CreateCategoryDto) {
+    return this.categoryRepository.create(dto);
+  }
 
-    return this.prisma.category.create({ data });
+  /**
+   * 更新分类记录。
+   */
+  update(id: string, dto: UpdateCategoryDto) {
+    return this.categoryRepository.update(id, dto);
+  }
+
+  /**
+   * 删除分类记录。
+   */
+  delete(id: string) {
+    return this.categoryRepository.delete(id);
   }
 }

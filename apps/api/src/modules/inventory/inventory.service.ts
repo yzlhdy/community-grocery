@@ -4,12 +4,12 @@ import { BusinessException } from "../../common/exceptions/business.exception";
 import { Prisma } from "../../generated/prisma/client";
 
 /**
- * Provides atomic stock lock, release, and confirmation operations.
+ * 提供原子化库存锁定、释放和确认扣减能力。
  */
 @Injectable()
 export class InventoryService {
   /**
-   * Locks sellable stock for a SKU inside an existing transaction.
+   * 在现有事务内锁定 SKU 可售库存。
    */
   async lockSkuStock(
     tx: Prisma.TransactionClient,
@@ -32,13 +32,13 @@ export class InventoryService {
     if (locked.count !== 1) {
       throw new BusinessException(
         ErrorCode.INSUFFICIENT_STOCK,
-        `Insufficient stock: ${productName}`,
+        `库存不足：${productName}`,
       );
     }
   }
 
   /**
-   * Releases previously locked stock after unpaid order cancellation.
+   * 未支付订单取消后释放已锁定库存。
    */
   async releaseLockedStock(tx: Prisma.TransactionClient, skuId: string, quantity: number) {
     await tx.sku.update({
@@ -50,7 +50,7 @@ export class InventoryService {
   }
 
   /**
-   * Confirms payment by deducting physical stock and locked stock together.
+   * 支付确认后同时扣减实际库存和锁定库存。
    */
   async confirmLockedStock(tx: Prisma.TransactionClient, skuId: string, quantity: number) {
     await tx.sku.update({

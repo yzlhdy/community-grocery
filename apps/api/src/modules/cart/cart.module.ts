@@ -7,6 +7,6 @@ import { CartService } from "./cart.service";
   providers: [CartService],
 })
 /**
- * Customer cart module.
+ * 小程序购物车模块。
  */
 export class CartModule {}

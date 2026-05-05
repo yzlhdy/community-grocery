@@ -5,6 +5,6 @@ import { HealthController } from "./health.controller";
   controllers: [HealthController],
 })
 /**
- * Health check module.
+ * 健康检查模块。
  */
 export class HealthModule {}

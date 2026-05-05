@@ -1,39 +1,25 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { BusinessException } from "../../common/exceptions/business.exception";
 import { ErrorCode } from "../../common/exceptions/error-code.enum";
-import { PrismaService } from "../../common/prisma/prisma.service";
+import { createPageResult } from "../../common/utils/pagination";
+import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductQueryDto } from "./dto/product-query.dto";
-import { UpsertProductDto } from "./dto/upsert-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+import { ProductRepository } from "./product.repository";
 
 @Injectable()
 /**
- * Provides product listing, detail, and admin product/SKU upsert operations.
+ * 提供商品列表、详情和后台商品/SKU 写入能力。
  */
 export class ProductService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly productRepository: ProductRepository) {}
 
   /**
-   * Lists enabled products with their enabled SKUs for customer browsing.
+   * 查询用于用户浏览的商品及其已启用 SKU。
    */
   async findMany(query: ProductQueryDto) {
-    const enabled = query.enabled === undefined ? true : query.enabled === "true";
-    const products = await this.prisma.product.findMany({
-      where: {
-        enabled,
-        categoryId: query.categoryId,
-        name: query.keyword ? { contains: query.keyword, mode: "insensitive" } : undefined,
-      },
-      include: {
-        category: true,
-        skus: {
-          where: { enabled: true },
-          orderBy: { createdAt: "asc" },
-        },
-      },
-      orderBy: [{ sort: "asc" }, { createdAt: "desc" }],
-    });
-
-    return products.map((product) => ({
+    const page = await this.productRepository.findPage(query);
+    const list = page.list.map((product) => ({
       ...product,
       skus: product.skus.map((sku) => ({
         ...sku,
@@ -41,22 +27,26 @@ export class ProductService {
         marketPrice: sku.marketPrice ? Number(sku.marketPrice) : null,
       })),
     }));
+
+    if (query.sortBy === "price_asc" || query.sortBy === "price_desc") {
+      list.sort((left, right) => {
+        const leftPrice = left.skus[0]?.price ?? 0;
+        const rightPrice = right.skus[0]?.price ?? 0;
+        return query.sortBy === "price_asc" ? leftPrice - rightPrice : rightPrice - leftPrice;
+      });
+    }
+
+    return createPageResult({ ...page, list });
   }
 
   /**
-   * Reads one product with category and all SKUs.
+   * 查询单个商品，包含分类和全部 SKU。
    */
   async findOne(id: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        skus: true,
-      },
-    });
+    const product = await this.productRepository.findOne(id);
 
     if (!product) {
-      throw new BusinessException(ErrorCode.NOT_FOUND, "Product not found", HttpStatus.NOT_FOUND);
+      throw new BusinessException(ErrorCode.NOT_FOUND, "商品不存在", HttpStatus.NOT_FOUND);
     }
 
     return {
@@ -70,40 +60,39 @@ export class ProductService {
   }
 
   /**
-   * Creates or updates a product and its SKU records.
+   * 创建商品及其 SKU 记录。
    */
-  async upsert(dto: UpsertProductDto) {
-    const productData = {
-      categoryId: dto.categoryId,
-      name: dto.name,
-      subtitle: dto.subtitle,
-      imageUrl: dto.imageUrl,
-      description: dto.description,
-      enabled: dto.enabled ?? true,
-    };
-
-    const product = dto.id
-      ? await this.prisma.product.update({ where: { id: dto.id }, data: productData })
-      : await this.prisma.product.create({ data: productData });
+  async create(dto: CreateProductDto) {
+    const product = await this.productRepository.create({ ...dto, enabled: dto.enabled ?? true });
 
     for (const sku of dto.skus ?? []) {
-      const data = {
-        productId: product.id,
-        name: sku.name,
-        unit: sku.unit,
-        price: sku.price,
-        marketPrice: sku.marketPrice,
-        stock: sku.stock,
-        enabled: sku.enabled ?? true,
-      };
+      await this.productRepository.createSku(product.id, { ...sku, enabled: sku.enabled ?? true });
+    }
 
+    return this.findOne(product.id);
+  }
+
+  /**
+   * 更新商品及其 SKU 记录。
+   */
+  async update(id: string, dto: UpdateProductDto) {
+    const product = await this.productRepository.update(id, dto);
+
+    for (const sku of dto.skus ?? []) {
       if (sku.id) {
-        await this.prisma.sku.update({ where: { id: sku.id }, data });
+        await this.productRepository.updateSku(sku.id, product.id, sku);
       } else {
-        await this.prisma.sku.create({ data });
+        await this.productRepository.createSku(product.id, { ...sku, enabled: sku.enabled ?? true });
       }
     }
 
     return this.findOne(product.id);
+  }
+
+  /**
+   * 删除商品。
+   */
+  delete(id: string) {
+    return this.productRepository.delete(id);
   }
 }

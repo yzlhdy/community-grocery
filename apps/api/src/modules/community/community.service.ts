@@ -1,36 +1,50 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../common/prisma/prisma.service";
-import { UpsertCommunityDto } from "./dto/upsert-community.dto";
+import { createPageResult } from "../../common/utils/pagination";
+import { CommunityRepository } from "./community.repository";
+import { CommunityQueryDto } from "./dto/community-query.dto";
+import { CreateCommunityDto } from "./dto/create-community.dto";
+import { UpdateCommunityDto } from "./dto/update-community.dto";
 
 @Injectable()
 /**
- * Provides community query and admin upsert operations.
+ * 提供小区查询和后台小区写入能力。
  */
 export class CommunityService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly communityRepository: CommunityRepository) {}
 
   /**
-   * Lists enabled communities with enabled pickup points.
+   * 查询已启用的小区及其已启用自提点。
    */
   findMany() {
-    return this.prisma.community.findMany({
-      where: { enabled: true },
-      include: { pickupPoints: { where: { enabled: true } } },
-      orderBy: { createdAt: "desc" },
-    });
+    return this.communityRepository.findEnabled();
   }
 
   /**
-   * Creates or updates a community.
+   * 后台分页查询小区。
    */
-  upsert(dto: UpsertCommunityDto) {
-    const data = {
-      name: dto.name,
-      address: dto.address,
-      enabled: dto.enabled ?? true,
-    };
-    return dto.id
-      ? this.prisma.community.update({ where: { id: dto.id }, data })
-      : this.prisma.community.create({ data });
+  async findPage(query: CommunityQueryDto) {
+    const page = await this.communityRepository.findPage(query);
+    return createPageResult(page);
+  }
+
+  /**
+   * 创建小区。
+   */
+  create(dto: CreateCommunityDto) {
+    return this.communityRepository.create(dto);
+  }
+
+  /**
+   * 更新小区。
+   */
+  update(id: string, dto: UpdateCommunityDto) {
+    return this.communityRepository.update(id, dto);
+  }
+
+  /**
+   * 删除小区。
+   */
+  delete(id: string) {
+    return this.communityRepository.delete(id);
   }
 }

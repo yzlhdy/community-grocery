@@ -6,6 +6,6 @@ import { PasswordService } from "./password.service";
   exports: [PasswordService],
 })
 /**
- * Security infrastructure module.
+ * 安全基础设施模块。
  */
 export class SecurityModule {}

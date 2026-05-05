@@ -1,37 +1,37 @@
 /**
- * Parameters required by WeChat Mini Program payment API.
+ * 微信小程序支付 API 所需参数。
  */
 export interface WechatMiniProgramPayParams {
-  /** Unix timestamp string. */
+  /** Unix 时间戳字符串。 */
   timeStamp: string;
-  /** Random nonce string. */
+  /** 随机字符串。 */
   nonceStr: string;
-  /** WeChat prepay package value. */
+  /** 微信预支付 package 值。 */
   package: string;
-  /** Payment signature algorithm. */
+  /** 支付签名算法。 */
   signType: "RSA";
-  /** Payment signature. */
+  /** 支付签名。 */
   paySign: string;
 }
 
 /**
- * Result returned by a payment provider after creating a prepay order.
+ * 支付提供者创建预支付订单后的返回结果。
  */
 export interface CreateWechatPaymentResult {
-  /** Provider prepay identifier. */
+  /** 支付提供者侧预支付标识。 */
   prepayId: string;
-  /** Mini Program payment parameters. */
+  /** 小程序支付参数。 */
   payParams: WechatMiniProgramPayParams;
-  /** Whether this provider result is mocked for local development. */
+  /** 当前支付结果是否为本地开发模拟数据。 */
   mock: boolean;
 }
 
 /**
- * Provider boundary for WeChat payment integration.
+ * 微信支付集成边界。
  */
 export interface WechatPaymentProvider {
   /**
-   * Creates a Mini Program payment order with the upstream provider.
+   * 通过上游支付提供者创建小程序支付订单。
    */
   createMiniProgramPayment(input: {
     paymentNo: string;
@@ -43,6 +43,6 @@ export interface WechatPaymentProvider {
 }
 
 /**
- * DI token for the WeChat payment provider.
+ * 微信支付提供者的依赖注入令牌。
  */
 export const WECHAT_PAYMENT_PROVIDER = Symbol("WECHAT_PAYMENT_PROVIDER");

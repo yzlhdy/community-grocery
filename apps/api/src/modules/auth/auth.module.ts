@@ -9,6 +9,6 @@ import { AuthService } from "./auth.service";
   providers: [AuthService],
 })
 /**
- * Authentication module.
+ * 认证模块。
  */
 export class AuthModule {}
