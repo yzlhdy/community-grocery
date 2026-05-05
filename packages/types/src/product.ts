@@ -16,10 +16,20 @@ export interface Product {
   name: string;
   subtitle?: string;
   imageUrl: string;
-  price: number;
-  marketPrice?: number;
-  unit: string;
-  stock: number;
+  description?: string;
+  skus: Sku[];
   sales: number;
+  enabled: boolean;
+}
+
+export interface Sku {
+  id: string;
+  productId: string;
+  name: string;
+  unit: string;
+  price: number;
+  marketPrice?: number | null;
+  stock: number;
+  lockedStock: number;
   enabled: boolean;
 }

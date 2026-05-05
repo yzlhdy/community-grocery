@@ -4,6 +4,8 @@ node_modules
 dist
 build
 unpackage
+uploads
+apps/api/src/generated
 .env
 .env.*
 !.env.example

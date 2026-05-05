@@ -17,7 +17,7 @@ export default function AdminHomePage() {
             <h1 className="text-2xl font-semibold text-slate-950">社区买菜后台</h1>
             <p className="mt-1 text-sm text-slate-500">商品、订单、小区和自提点运营管理</p>
           </div>
-          <StatusBadge>{ORDER_STATUS_LABEL.pendingPickup}</StatusBadge>
+          <StatusBadge>{ORDER_STATUS_LABEL.PENDING_PICKUP}</StatusBadge>
         </header>
 
         <section className="grid grid-cols-4 gap-4">

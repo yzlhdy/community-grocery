@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  ADMIN
+  OPERATOR
+}
+
+enum CustomerStatus {
+  ENABLED
+  DISABLED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PENDING_PICKUP
+  COMPLETED
+  CANCELLED
+  REFUNDING
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CLOSED
+  REFUNDED
+}
+
+enum AssetStorage {
+  LOCAL
+  COS
+  OSS
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(OPERATOR)
+  enabled      Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Customer {
+  id          String         @id @default(cuid())
+  openId      String         @unique
+  unionId     String?
+  nickname    String?
+  avatarUrl   String?
+  phone       String?
+  status      CustomerStatus @default(ENABLED)
+  cartItems   CartItem[]
+  orders      Order[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Community {
+  id           String        @id @default(cuid())
+  name         String
+  address      String
+  enabled      Boolean       @default(true)
+  pickupPoints PickupPoint[]
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model PickupPoint {
+  id              String    @id @default(cuid())
+  communityId     String
+  name            String
+  address         String
+  contactName     String
+  contactPhone    String
+  pickupTimeRange String
+  enabled         Boolean   @default(true)
+  community       Community @relation(fields: [communityId], references: [id])
+  orders          Order[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([communityId])
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  parentId  String?
+  level     Int
+  iconUrl   String?
+  sort      Int        @default(0)
+  enabled   Boolean    @default(true)
+  parent    Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryChildren")
+  products  Product[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([parentId])
+  @@index([enabled, sort])
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  categoryId  String
+  name        String
+  subtitle    String?
+  imageUrl    String
+  description String?
+  sales       Int       @default(0)
+  enabled     Boolean   @default(true)
+  sort        Int       @default(0)
+  category    Category  @relation(fields: [categoryId], references: [id])
+  skus        Sku[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([enabled, sort])
+}
+
+model Sku {
+  id          String      @id @default(cuid())
+  productId   String
+  name        String
+  unit        String
+  price       Decimal     @db.Decimal(10, 2)
+  marketPrice Decimal?    @db.Decimal(10, 2)
+  stock       Int         @default(0)
+  lockedStock Int         @default(0)
+  enabled     Boolean     @default(true)
+  product     Product     @relation(fields: [productId], references: [id])
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([productId])
+}
+
+model CartItem {
+  id         String   @id @default(cuid())
+  customerId String
+  skuId      String
+  quantity   Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+  sku        Sku      @relation(fields: [skuId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([customerId, skuId])
+  @@index([customerId])
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  orderNo        String       @unique
+  customerId     String
+  communityId    String
+  pickupPointId  String
+  status         OrderStatus  @default(PENDING_PAYMENT)
+  pickupCode     String?
+  totalAmount    Decimal      @db.Decimal(10, 2)
+  discountAmount Decimal      @default(0) @db.Decimal(10, 2)
+  payableAmount  Decimal      @db.Decimal(10, 2)
+  paidAt         DateTime?
+  cancelledAt    DateTime?
+  completedAt    DateTime?
+  customer       Customer     @relation(fields: [customerId], references: [id])
+  community      Community    @relation(fields: [communityId], references: [id])
+  pickupPoint    PickupPoint  @relation(fields: [pickupPointId], references: [id])
+  items          OrderItem[]
+  payments       Payment[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([customerId, status])
+  @@index([communityId])
+  @@index([pickupPointId])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  skuId       String
+  productName String
+  skuName     String
+  imageUrl    String
+  unit        String
+  price       Decimal  @db.Decimal(10, 2)
+  quantity    Int
+  order       Order    @relation(fields: [orderId], references: [id])
+  sku         Sku      @relation(fields: [skuId], references: [id])
+
+  @@index([orderId])
+  @@index([skuId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String
+  paymentNo     String        @unique
+  provider      String        @default("wechat")
+  providerTxnId String?
+  status        PaymentStatus @default(PENDING)
+  amount        Decimal       @db.Decimal(10, 2)
+  rawPayload    Json?
+  paidAt        DateTime?
+  order         Order         @relation(fields: [orderId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model UploadAsset {
+  id           String       @id @default(cuid())
+  storage      AssetStorage @default(LOCAL)
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  path         String
+  createdAt    DateTime     @default(now())
+}

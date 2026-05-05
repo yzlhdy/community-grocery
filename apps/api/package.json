@@ -5,7 +5,10 @@
     "dev": "nest start --watch",
     "build": "nest build",
     "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate --config=prisma.config.ts",
+    "prisma:migrate": "prisma migrate dev --config=prisma.config.ts",
+    "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@community-grocery/constants": "workspace:*",
@@ -15,14 +18,32 @@
     "@nestjs/common": "^11.1.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.0",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.1.0",
+    "@nestjs/swagger": "^11.2.1",
+    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/client": "^7.1.0",
+    "argon2": "^0.44.0",
+    "axios": "^1.15.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "date-fns": "^4.1.0",
+    "ioredis": "^5.8.2",
+    "minio": "^8.0.7",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@community-grocery/tsconfig": "workspace:*",
     "@nestjs/cli": "^11.0.7",
+    "@types/express": "^5.0.5",
     "@types/node": "^22.15.3",
+    "@types/multer": "^2.0.0",
+    "prisma": "^7.1.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.8.3"
   }
 }

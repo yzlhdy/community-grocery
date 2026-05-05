@@ -14,6 +14,7 @@
     "@community-grocery/types": "workspace:*",
     "@community-grocery/utils": "workspace:*",
     "@dcloudio/uni-app": "3.0.0-alpha-5000820260430001",
+    "@dcloudio/uni-components": "3.0.0-alpha-5000820260430001",
     "@dcloudio/uni-h5": "3.0.0-alpha-5000820260430001",
     "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5000820260430001",
     "vue": "3.4.21"
@@ -22,6 +23,7 @@
     "@community-grocery/tsconfig": "workspace:*",
     "@dcloudio/types": "3.4.31",
     "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5000820260430001",
+    "sass": "^1.93.3",
     "typescript": "^5.8.3",
     "vite": "5.2.8",
     "vue-tsc": "^2.2.10"

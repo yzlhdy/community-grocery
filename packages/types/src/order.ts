@@ -1,14 +1,18 @@
 export type OrderStatus =
-  | "pendingPayment"
-  | "pendingPickup"
-  | "completed"
-  | "cancelled"
-  | "refunding"
-  | "refunded";
+  | "PENDING_PAYMENT"
+  | "PENDING_PICKUP"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "REFUNDING"
+  | "REFUNDED";
+
+export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "CLOSED" | "REFUNDED";
 
 export interface OrderItem {
-  productId: string;
+  id: string;
+  skuId: string;
   productName: string;
+  skuName: string;
   imageUrl: string;
   price: number;
   quantity: number;
@@ -18,7 +22,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   orderNo: string;
-  userId: string;
+  customerId: string;
   communityId: string;
   pickupPointId: string;
   status: OrderStatus;
@@ -27,5 +31,17 @@ export interface Order {
   discountAmount: number;
   payableAmount: number;
   items: OrderItem[];
+  createdAt: string;
+}
+
+export interface Payment {
+  id: string;
+  orderId: string;
+  paymentNo: string;
+  provider: "wechat";
+  providerTxnId?: string;
+  status: PaymentStatus;
+  amount: number;
+  paidAt?: string;
   createdAt: string;
 }
