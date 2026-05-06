@@ -24,8 +24,6 @@ type PickupPointFormState = {
   contactName: string
   contactPhone: string
   pickupTimeRange: string
-  servicePhone: string
-  serviceTimeRange: string
   enabled: string
 }
 
@@ -36,15 +34,13 @@ const initialForm: PickupPointFormState = {
   contactName: "",
   contactPhone: "",
   pickupTimeRange: "今日 18:30 前可自提",
-  servicePhone: "",
-  serviceTimeRange: "08:00-22:00",
   enabled: "true",
 }
 
 const pickupPointFields: Array<{
   key: keyof Pick<
     PickupPointFormState,
-    "name" | "address" | "contactName" | "contactPhone" | "pickupTimeRange" | "servicePhone" | "serviceTimeRange"
+    "name" | "address" | "contactName" | "contactPhone" | "pickupTimeRange"
   >
   label: string
   required?: boolean
@@ -54,8 +50,6 @@ const pickupPointFields: Array<{
   { key: "contactName", label: "联系人", required: true },
   { key: "contactPhone", label: "联系电话", required: true },
   { key: "pickupTimeRange", label: "自提时间", required: true },
-  { key: "servicePhone", label: "客服电话" },
-  { key: "serviceTimeRange", label: "服务时间" },
 ]
 
 export default function PickupPointsPage() {
@@ -71,7 +65,7 @@ export default function PickupPointsPage() {
         adminApi.getPickupPointPage({ communityId: communityId === "all" ? undefined : communityId, pageSize: 50 }),
         adminApi.getCommunityPage({ pageSize: 100 }),
       ])
-      setPickupPoints(pickupPage.list as PickupPoint[])
+      setPickupPoints(pickupPage.list)
       setCommunities(communityPage.list)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "自提点加载失败")
@@ -91,8 +85,6 @@ export default function PickupPointsPage() {
       contactName: point.contactName,
       contactPhone: point.contactPhone,
       pickupTimeRange: point.pickupTimeRange,
-      servicePhone: point.servicePhone ?? "",
-      serviceTimeRange: point.serviceTimeRange ?? "",
       enabled: String(point.enabled),
     })
     setOpen(true)
@@ -107,8 +99,6 @@ export default function PickupPointsPage() {
       contactName: form.contactName,
       contactPhone: form.contactPhone,
       pickupTimeRange: form.pickupTimeRange,
-      servicePhone: form.servicePhone || undefined,
-      serviceTimeRange: form.serviceTimeRange || undefined,
       enabled: form.enabled === "true",
     }
     try {

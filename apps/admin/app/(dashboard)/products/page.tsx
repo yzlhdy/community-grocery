@@ -54,7 +54,7 @@ export default function ProductsPage() {
     setLoading(true)
     try {
       const [productPage, categoryPage] = await Promise.all([
-        adminApi.getProducts({ keyword, categoryId: categoryId === "all" ? undefined : categoryId, pageSize: 50 }),
+        adminApi.getAdminProducts({ keyword, categoryId: categoryId === "all" ? undefined : categoryId, pageSize: 50 }),
         adminApi.getCategoryPage({ pageSize: 100 }),
       ])
       setProducts(productPage.list)
@@ -103,7 +103,6 @@ export default function ProductsPage() {
           price: Number(form.price),
           marketPrice: form.marketPrice ? Number(form.marketPrice) : undefined,
           stock: Number(form.stock),
-          lockedStock: 0,
           enabled: true,
         },
       ],
