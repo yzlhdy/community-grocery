@@ -18,6 +18,7 @@ export class CategoryRepository {
    */
   findTreeList() {
     return this.prisma.category.findMany({
+      where: { deletedAt: null, enabled: true },
       orderBy: [{ level: "asc" }, { sort: "asc" }],
     });
   }
@@ -28,6 +29,7 @@ export class CategoryRepository {
   async findPage(query: CategoryQueryDto) {
     const pagination = resolvePagination(query);
     const where = {
+      deletedAt: null,
       enabled: query.enabled === undefined ? undefined : query.enabled === "true",
       name: query.keyword ? { contains: query.keyword, mode: "insensitive" as const } : undefined,
     };
@@ -67,7 +69,13 @@ export class CategoryRepository {
    * 删除分类。
    */
   delete(id: string) {
-    return this.prisma.category.delete({ where: { id } });
+    return this.prisma.category.update({
+      where: { id },
+      data: {
+        enabled: false,
+        deletedAt: new Date(),
+      },
+    });
   }
 
   /**

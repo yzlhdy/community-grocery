@@ -106,38 +106,38 @@ export function createApiClient(options: ApiClientOptions) {
     getCategoryTree: () =>
       send<Array<Category & { children: Category[] }>>(`${apiPrefix}/categories/tree`),
     getCategoryPage: (query?: PageQuery & { keyword?: string; enabled?: string }) =>
-      send<PageResult<Category>>(appendQuery(`${apiPrefix}/categories`, query)),
+      send<PageResult<Category>>(appendQuery(`${apiPrefix}/admin/categories`, query)),
     createCategory: (body: Omit<Category, "id">) =>
-      send<Category>(`${apiPrefix}/categories`, { method: "POST", body }),
+      send<Category>(`${apiPrefix}/admin/categories`, { method: "POST", body }),
     updateCategory: (id: string, body: Partial<Omit<Category, "id">>) =>
-      send<Category>(`${apiPrefix}/categories/${id}`, { method: "PATCH", body }),
+      send<Category>(`${apiPrefix}/admin/categories/${id}`, { method: "PATCH", body }),
     deleteCategory: (id: string) =>
-      send<Category>(`${apiPrefix}/categories/${id}`, { method: "DELETE" }),
+      send<Category>(`${apiPrefix}/admin/categories/${id}`, { method: "DELETE" }),
     getCommunities: () => send<Community[]>(`${apiPrefix}/communities`),
     getCommunityPage: (query?: PageQuery & { keyword?: string; enabled?: string }) =>
-      send<PageResult<Community>>(appendQuery(`${apiPrefix}/communities/admin/page`, query)),
+      send<PageResult<Community>>(appendQuery(`${apiPrefix}/admin/communities`, query)),
     createCommunity: (body: Omit<Community, "id">) =>
-      send<Community>(`${apiPrefix}/communities`, { method: "POST", body }),
+      send<Community>(`${apiPrefix}/admin/communities`, { method: "POST", body }),
     updateCommunity: (id: string, body: Partial<Omit<Community, "id">>) =>
-      send<Community>(`${apiPrefix}/communities/${id}`, { method: "PATCH", body }),
+      send<Community>(`${apiPrefix}/admin/communities/${id}`, { method: "PATCH", body }),
     deleteCommunity: (id: string) =>
-      send<Community>(`${apiPrefix}/communities/${id}`, { method: "DELETE" }),
+      send<Community>(`${apiPrefix}/admin/communities/${id}`, { method: "DELETE" }),
     getPickupPointPage: (query?: PageQuery & { communityId?: string; keyword?: string; enabled?: string }) =>
-      send<PageResult<unknown>>(appendQuery(`${apiPrefix}/pickup-points/admin/page`, query)),
+      send<PageResult<unknown>>(appendQuery(`${apiPrefix}/admin/pickup-points`, query)),
     createPickupPoint: (body: object) =>
-      send<unknown>(`${apiPrefix}/pickup-points`, { method: "POST", body }),
+      send<unknown>(`${apiPrefix}/admin/pickup-points`, { method: "POST", body }),
     updatePickupPoint: (id: string, body: object) =>
-      send<unknown>(`${apiPrefix}/pickup-points/${id}`, { method: "PATCH", body }),
+      send<unknown>(`${apiPrefix}/admin/pickup-points/${id}`, { method: "PATCH", body }),
     deletePickupPoint: (id: string) =>
-      send<unknown>(`${apiPrefix}/pickup-points/${id}`, { method: "DELETE" }),
+      send<unknown>(`${apiPrefix}/admin/pickup-points/${id}`, { method: "DELETE" }),
     getProducts: (query?: ProductListQuery) =>
       send<PageResult<Product>>(appendQuery(`${apiPrefix}/products`, query)),
     createProduct: (body: object) =>
-      send<Product>(`${apiPrefix}/products`, { method: "POST", body }),
+      send<Product>(`${apiPrefix}/admin/products`, { method: "POST", body }),
     updateProduct: (id: string, body: object) =>
-      send<Product>(`${apiPrefix}/products/${id}`, { method: "PATCH", body }),
+      send<Product>(`${apiPrefix}/admin/products/${id}`, { method: "PATCH", body }),
     deleteProduct: (id: string) =>
-      send<Product>(`${apiPrefix}/products/${id}`, { method: "DELETE" }),
+      send<Product>(`${apiPrefix}/admin/products/${id}`, { method: "DELETE" }),
     getCart: () => send<unknown[]>(`${apiPrefix}/cart`),
     getCartSummary: () => send<unknown>(`${apiPrefix}/cart/summary`),
     upsertCartItem: (body: { skuId: string; quantity: number }) =>

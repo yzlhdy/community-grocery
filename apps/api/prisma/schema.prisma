@@ -94,8 +94,28 @@ model AdminUser {
   name         String
   role         AdminRole @default(OPERATOR)
   enabled      Boolean   @default(true)
+  operationLogs AdminOperationLog[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+model AdminOperationLog {
+  id          String    @id @default(cuid())
+  adminUserId String?
+  module      String
+  action      String
+  resourceId  String?
+  summary     String
+  beforeData  Json?
+  afterData   Json?
+  ip          String?
+  userAgent   String?
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@index([adminUserId, createdAt])
+  @@index([module, action, createdAt])
+  @@index([resourceId])
 }
 
 model Customer {
@@ -127,10 +147,13 @@ model Community {
   name         String
   address      String
   enabled      Boolean       @default(true)
+  deletedAt    DateTime?
   pickupPoints PickupPoint[]
   orders       Order[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  @@index([deletedAt])
 }
 
 model PickupPoint {
@@ -146,12 +169,14 @@ model PickupPoint {
   servicePhone    String?
   serviceTimeRange String?
   enabled         Boolean   @default(true)
+  deletedAt       DateTime?
   community       Community @relation(fields: [communityId], references: [id])
   orders          Order[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   @@index([communityId])
+  @@index([deletedAt])
 }
 
 model Category {
@@ -162,6 +187,7 @@ model Category {
   iconUrl   String?
   sort      Int        @default(0)
   enabled   Boolean    @default(true)
+  deletedAt DateTime?
   parent    Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children  Category[] @relation("CategoryChildren")
   products  Product[]
@@ -170,6 +196,7 @@ model Category {
 
   @@index([parentId])
   @@index([enabled, sort])
+  @@index([deletedAt])
 }
 
 model Product {
@@ -182,6 +209,7 @@ model Product {
   sales       Int       @default(0)
   badge       String?
   enabled     Boolean   @default(true)
+  deletedAt   DateTime?
   sort        Int       @default(0)
   category    Category  @relation(fields: [categoryId], references: [id])
   skus        Sku[]
@@ -194,6 +222,7 @@ model Product {
 
   @@index([categoryId])
   @@index([enabled, sort])
+  @@index([deletedAt])
 }
 
 model Sku {
@@ -206,6 +235,7 @@ model Sku {
   stock       Int         @default(0)
   lockedStock Int         @default(0)
   enabled     Boolean     @default(true)
+  deletedAt   DateTime?
   product     Product     @relation(fields: [productId], references: [id])
   cartItems   CartItem[]
   orderItems  OrderItem[]
@@ -214,6 +244,7 @@ model Sku {
   updatedAt   DateTime    @updatedAt
 
   @@index([productId])
+  @@index([deletedAt])
 }
 
 model CartItem {
@@ -374,11 +405,13 @@ model CouponTemplate {
   startsAt       DateTime?
   endsAt         DateTime?
   enabled        Boolean          @default(true)
+  deletedAt      DateTime?
   customerCoupons CustomerCoupon[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
   @@index([enabled, startsAt, endsAt])
+  @@index([deletedAt])
 }
 
 model CustomerCoupon {

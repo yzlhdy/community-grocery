@@ -17,7 +17,7 @@ export class PickupPointRepository {
    */
   findEnabledByCommunity(communityId: string) {
     return this.prisma.pickupPoint.findMany({
-      where: { communityId, enabled: true },
+      where: { communityId, enabled: true, deletedAt: null },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -28,6 +28,7 @@ export class PickupPointRepository {
   async findPage(query: PickupPointQueryDto) {
     const pagination = resolvePagination(query);
     const where = {
+      deletedAt: null,
       communityId: query.communityId,
       enabled: query.enabled === undefined ? undefined : query.enabled === "true",
       name: query.keyword ? { contains: query.keyword, mode: "insensitive" as const } : undefined,
@@ -68,6 +69,12 @@ export class PickupPointRepository {
    * 删除自提点。
    */
   delete(id: string) {
-    return this.prisma.pickupPoint.delete({ where: { id } });
+    return this.prisma.pickupPoint.update({
+      where: { id },
+      data: {
+        enabled: false,
+        deletedAt: new Date(),
+      },
+    });
   }
 }

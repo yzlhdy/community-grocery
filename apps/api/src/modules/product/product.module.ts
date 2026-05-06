@@ -1,10 +1,13 @@
 import { Module } from "@nestjs/common";
+import { AdminOperationLogModule } from "../admin-operation-log/admin-operation-log.module";
+import { AdminProductController } from "./admin-product.controller";
 import { ProductController } from "./product.controller";
 import { ProductRepository } from "./product.repository";
 import { ProductService } from "./product.service";
 
 @Module({
-  controllers: [ProductController],
+  imports: [AdminOperationLogModule],
+  controllers: [ProductController, AdminProductController],
   providers: [ProductService, ProductRepository],
 })
 /**

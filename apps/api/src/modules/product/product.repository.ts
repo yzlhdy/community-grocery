@@ -18,8 +18,9 @@ export class ProductRepository {
    */
   async findPage(query: ProductQueryDto) {
     const pagination = resolvePagination(query);
-    const enabled = query.enabled === undefined ? true : query.enabled === "true";
+    const enabled = query.enabled === undefined ? undefined : query.enabled === "true";
     const where = {
+      deletedAt: null,
       enabled,
       categoryId: query.categoryId,
       name: query.keyword ? { contains: query.keyword, mode: "insensitive" as const } : undefined,
@@ -30,7 +31,7 @@ export class ProductRepository {
         include: {
           category: true,
           skus: {
-            where: { enabled: true },
+            where: { enabled: true, deletedAt: null },
             orderBy: { createdAt: "asc" },
           },
         },
@@ -47,12 +48,12 @@ export class ProductRepository {
   /**
    * 查询商品详情。
    */
-  findOne(id: string) {
-    return this.prisma.product.findUnique({
-      where: { id },
+  findOne(id: string, enabled?: boolean) {
+    return this.prisma.product.findFirst({
+      where: { id, deletedAt: null, enabled },
       include: {
         category: true,
-        skus: true,
+        skus: { where: { deletedAt: null } },
       },
     });
   }
@@ -80,7 +81,19 @@ export class ProductRepository {
    * 删除商品。
    */
   delete(id: string) {
-    return this.prisma.product.delete({ where: { id } });
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        enabled: false,
+        deletedAt: new Date(),
+        skus: {
+          updateMany: {
+            where: { deletedAt: null },
+            data: { enabled: false, deletedAt: new Date() },
+          },
+        },
+      },
+    });
   }
 
   /**

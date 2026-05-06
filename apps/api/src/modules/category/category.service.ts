@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { createPageResult } from "../../common/utils/pagination";
+import { presentCategory } from "./category.presenter";
 import { CategoryRepository } from "./category.repository";
 import { CategoryQueryDto } from "./dto/category-query.dto";
 import { CreateCategoryDto } from "./dto/create-category.dto";
@@ -21,8 +22,8 @@ export class CategoryService {
     return categories
       .filter((category) => !category.parentId)
       .map((category) => ({
-        ...category,
-        children: categories.filter((item) => item.parentId === category.id),
+        ...presentCategory(category),
+        children: categories.filter((item) => item.parentId === category.id).map(presentCategory),
       }));
   }
 
@@ -31,27 +32,27 @@ export class CategoryService {
    */
   async findPage(query: CategoryQueryDto) {
     const page = await this.categoryRepository.findPage(query);
-    return createPageResult(page);
+    return createPageResult({ ...page, list: page.list.map(presentCategory) });
   }
 
   /**
    * 创建分类记录。
    */
   create(dto: CreateCategoryDto) {
-    return this.categoryRepository.create(dto);
+    return this.categoryRepository.create(dto).then(presentCategory);
   }
 
   /**
    * 更新分类记录。
    */
   update(id: string, dto: UpdateCategoryDto) {
-    return this.categoryRepository.update(id, dto);
+    return this.categoryRepository.update(id, dto).then(presentCategory);
   }
 
   /**
    * 删除分类记录。
    */
   delete(id: string) {
-    return this.categoryRepository.delete(id);
+    return this.categoryRepository.delete(id).then(presentCategory);
   }
 }

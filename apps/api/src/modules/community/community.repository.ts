@@ -17,8 +17,8 @@ export class CommunityRepository {
    */
   findEnabled() {
     return this.prisma.community.findMany({
-      where: { enabled: true },
-      include: { pickupPoints: { where: { enabled: true } } },
+      where: { enabled: true, deletedAt: null },
+      include: { pickupPoints: { where: { enabled: true, deletedAt: null } } },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -29,6 +29,7 @@ export class CommunityRepository {
   async findPage(query: CommunityQueryDto) {
     const pagination = resolvePagination(query);
     const where = {
+      deletedAt: null,
       enabled: query.enabled === undefined ? undefined : query.enabled === "true",
       name: query.keyword ? { contains: query.keyword, mode: "insensitive" as const } : undefined,
     };
@@ -72,6 +73,12 @@ export class CommunityRepository {
    * 删除小区。
    */
   delete(id: string) {
-    return this.prisma.community.delete({ where: { id } });
+    return this.prisma.community.update({
+      where: { id },
+      data: {
+        enabled: false,
+        deletedAt: new Date(),
+      },
+    });
   }
 }

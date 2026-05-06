@@ -5,6 +5,7 @@ import { createPageResult } from "../../common/utils/pagination";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductQueryDto } from "./dto/product-query.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import { presentProduct } from "./product.presenter";
 import { ProductRepository } from "./product.repository";
 
 @Injectable()
@@ -19,14 +20,7 @@ export class ProductService {
    */
   async findMany(query: ProductQueryDto) {
     const page = await this.productRepository.findPage(query);
-    const list = page.list.map((product) => ({
-      ...product,
-      skus: product.skus.map((sku) => ({
-        ...sku,
-        price: Number(sku.price),
-        marketPrice: sku.marketPrice ? Number(sku.marketPrice) : null,
-      })),
-    }));
+    const list = page.list.map((product) => presentProduct(product));
 
     if (query.sortBy === "price_asc" || query.sortBy === "price_desc") {
       list.sort((left, right) => {
@@ -42,21 +36,14 @@ export class ProductService {
   /**
    * 查询单个商品，包含分类和全部 SKU。
    */
-  async findOne(id: string) {
-    const product = await this.productRepository.findOne(id);
+  async findOne(id: string, options?: { enabled?: boolean }) {
+    const product = await this.productRepository.findOne(id, options?.enabled);
 
     if (!product) {
       throw new BusinessException(ErrorCode.NOT_FOUND, "商品不存在", HttpStatus.NOT_FOUND);
     }
 
-    return {
-      ...product,
-      skus: product.skus.map((sku) => ({
-        ...sku,
-        price: Number(sku.price),
-        marketPrice: sku.marketPrice ? Number(sku.marketPrice) : null,
-      })),
-    };
+    return presentProduct(product);
   }
 
   /**
@@ -92,7 +79,13 @@ export class ProductService {
   /**
    * 删除商品。
    */
-  delete(id: string) {
-    return this.productRepository.delete(id);
+  async delete(id: string) {
+    const product = await this.productRepository.delete(id);
+    return {
+      id: product.id,
+      name: product.name,
+      enabled: product.enabled,
+      deletedAt: product.deletedAt,
+    };
   }
 }
